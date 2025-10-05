@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q          #Used for serach related operations.
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth.forms import UserCreationForm
 from .models import Room,Topic
 from .forms import RoomForm     #importing after making Roomform in forms.py
 # Create your views here.
@@ -14,9 +17,12 @@ from .forms import RoomForm     #importing after making Roomform in forms.py
 # ]
 
 def loginPage(request):
+    page = 'login'
+    if request.user.is_authenticated:
+        return redirect('home')
 
     if request.method == 'POST':
-        username = request.POST.get('username')
+        username = request.POST.get('username').lower()
         password = request.POST.get('password')
 
         try:
@@ -29,13 +35,28 @@ def loginPage(request):
             return redirect('home')
         else:
             messages.error(request, "Username or Password does not exist")
-    context = {}
+    context = {'page':page}
     return render(request,'base/login_register.html', context)
 
 
 def logoutUser(request):
     logout(request)
     return redirect('home')
+
+def registerPage(request):
+    form = UserCreationForm()
+
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)          #when form is valid the user is gonna get created so commit false makes access the user right away
+            user.username = user.username.lower()
+            user.save()
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.error(request, 'An error occurred during registration')
+    return render(request, 'base/login_register.html', {'form' : form})
 
 def home(request):
     q = request.GET.get('q') if request.GET.get('q')!=None else ''      #if request has q variable then it filters but if none exist with such name then all are displayed. All button doenst have q therefore everything is displayed 
@@ -56,6 +77,8 @@ def room(request,pk):
 
     return render(request, 'base/room.html', context)
 
+
+@login_required(login_url='/login')
 def createRoom(request):
     form = RoomForm()
 
@@ -67,10 +90,13 @@ def createRoom(request):
     context = {'form': form}
     return render(request, 'base/room_form.html', context)
 
-
+@login_required(login_url='/login')
 def updateRoom(request,pk):
     room = Room.objects.get(id=pk)
     form = RoomForm(instance=room)     # Form will be prefilled with room value to edit that specific room
+
+    if request.user != room.host:
+        return HttpResponse("You are not allowed here!")
 
     if request.method == 'POST':
         form = RoomForm(request.POST, instance=room)        #Specifying which room to update
@@ -81,8 +107,12 @@ def updateRoom(request,pk):
     context={'form': form}
     return render(request, 'base/room_form.html',context)
 
+@login_required(login_url='/login')
 def deleteRoom(request,pk):
     room = Room.objects.get(id=pk)
+
+    if request.user != room.host:
+        return HttpResponse("You are not allowed here!")
     if request.method == 'POST':
         room.delete()
         return redirect('home')
