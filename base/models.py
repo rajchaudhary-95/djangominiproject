@@ -18,6 +18,8 @@ class Room(models.Model):
     updated = models.DateTimeField(auto_now=True) #it takes the snapshot of everytime this table is updated
     created = models.DateField(auto_now_add=True) #it takes snapshot of time the first time the table was created(instance of this class was created)
 
+    class Meta:
+        ordering = ['-updated', '-created']     #normal updated and created does ascending order and with a - minus it does descending order
 
     def __str__(self):
         return self.name

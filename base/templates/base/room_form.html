@@ -1,0 +1,15 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<div>
+    <form method="POST" action="">    <!--  post=method for creating and updating, action='' meaning send to current url,if u specify then u can send to other url -->
+        {% csrf_token %}        <!--token passed with every request to make sure no malicious attempts, forgery attacks from user -->
+        {{form.as_p}}           <!--.as_p will wrap a para tag around every input field-->
+        <input type="submit" value="Submit" />      <!-- "Submit" button for submit values -->
+    </form>
+
+</div> 
+
+
+{% endblock content%}
