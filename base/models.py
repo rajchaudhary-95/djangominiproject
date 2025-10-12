@@ -31,6 +31,7 @@ class Message(models.Model):
     body = models.TextField()
     updated = models.DateTimeField(auto_now=True) #it takes the snapshot of everytime this table is updated
     created = models.DateField(auto_now_add=True) #it takes snapshot of time the first time the table was created(instance of this class was created)
-
+    class Meta:
+        ordering = ['-updated', '-created']
     def __str__(self):
         return self.body[0:50]
