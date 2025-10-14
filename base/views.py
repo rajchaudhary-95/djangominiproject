@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q          #Used for serach related operations.
+from django.db.models import Q, Count          #Used for serach related operations.
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.forms import UserCreationForm
@@ -62,9 +62,12 @@ def home(request):
     q = request.GET.get('q') if request.GET.get('q')!=None else ''      #if request has q variable then it filters but if none exist with such name then all are displayed. All button doenst have q therefore everything is displayed 
     rooms = Room.objects.filter(
         Q(topic__name__icontains=q) |
-        Q(name__icontains=q)|
+        Q(name__icontains=q) |
         Q(description__icontains=q)
-        )       #contains sees for eg if for searching python only py is added to sitename then it searches for rooms starting with py.(full python isnt needed to be typed) and icontains = case insensitive (contains)
+    ).annotate(
+        message_count=Count('messages', distinct=True),
+        participant_count=Count('participants', distinct=True)
+    ).order_by('-message_count', '-participant_count', '-created')       #contains sees for eg if for searching python only py is added to sitename then it searches for rooms starting with py.(full python isnt needed to be typed) and icontains = case insensitive (contains)
                 # by using Q we put OR for searching either room name or room topic or room description
     topics = Topic.objects.all()
     room_count = rooms.count()
@@ -76,7 +79,7 @@ def home(request):
 
 def room(request,pk):
     room = Room.objects.get(id=pk)
-    room_messages = room.message_set.all()
+    room_messages = room.messages.all()
     participants = room.participants.all()
     if request.method =='POST':
         message = Message.objects.create(

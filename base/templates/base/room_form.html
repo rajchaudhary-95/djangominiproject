@@ -19,9 +19,9 @@
         </div>
         <div class="layout__body">
           <form class="form" action="" method="POST">
-             {% csrf_token %}        <!--token passed with every request to make sure no malicious attempts, forgery attacks from user -->
-             
-             <div class="form__group">
+            {% csrf_token %}        <!--token passed with every request to make sure no malicious attempts, forgery attacks from user -->
+            
+            <div class="form__group">
               <label for="room_topic">Room topic</label>
               <input required type="text" value="{{room.topic.name}}" name="topic" list="topic-list" />
               <datalist id="topic-list">
@@ -34,14 +34,14 @@
             </div>
 
 
-             <div class="form__group">
+            <div class="form__group">
               <label for="room_name">Room name</label>
-               {{form.name}}
+              {{form.name}}
             </div>
 
             <div class="form__group">
               <label for="room_description">Room Description</label>
-               {{form.description}}
+              {{form.description}}
             </div>
            
 
