@@ -69,7 +69,9 @@ def home(request):
         participant_count=Count('participants', distinct=True)
     ).order_by('-message_count', '-participant_count', '-created')       #contains sees for eg if for searching python only py is added to sitename then it searches for rooms starting with py.(full python isnt needed to be typed) and icontains = case insensitive (contains)
                 # by using Q we put OR for searching either room name or room topic or room description
-    topics = Topic.objects.all()
+    topics = Topic.objects.annotate(
+        room_count=Count('room')
+    ).order_by('-room_count')[:4]
     room_count = rooms.count()
 
     room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))
@@ -176,3 +178,12 @@ def updateUser(request):
             form.save()
             return redirect('user-profile',pk=user.id)
     return render(request, 'base/update-user.html',{'form':form})
+
+def topicsPage(request):
+    q = request.GET.get('q') if request.GET.get('q')!=None else ''
+    topics = Topic.objects.filter(name__icontains=q)
+    return render(request,'base/topics.html',{'topics':topics})
+
+def activityPage(request):
+    room_messages = Message.objects.all()
+    return render(request,'base/activity.html',{'room_messages': room_messages})

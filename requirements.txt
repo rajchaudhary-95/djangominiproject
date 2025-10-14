@@ -33,3 +33,4 @@ tomlkit==0.13.2
 trove-classifiers==2024.10.21.16
 urllib3==2.2.3
 virtualenv==20.27.1
+djangorestframework==3.16.1
