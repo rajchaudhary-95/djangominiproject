@@ -77,7 +77,15 @@
                 rerum consectetur, voluptatem repudiandae eum ea porro cupiditate provident nulla, deserunt, ab ipsum
                 corporis laboriosam deleniti molestias?
               </div> -->
-              <span class="room__topics">{{room.topic}}</span>
+              <div class="room__topics">
+                {% for topic in room.topics.all %}
+                  {{ topic.name }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                  <span>No topics</span>
+                {% endfor %}
+              </div>
+
+
             </div>
             <div class="room__conversation">
               <div class="threads scroll">

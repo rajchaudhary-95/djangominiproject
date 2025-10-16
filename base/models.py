@@ -21,7 +21,7 @@ class Topic(models.Model):
 
 class Room(models.Model):
     host = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True)
+    topics = models.ManyToManyField(Topic, related_name='rooms', blank=True)
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True) #it could be null and also be kept empty and changed afterwards
     participants = models.ManyToManyField(User, related_name='participants', blank = True)
@@ -38,6 +38,7 @@ class Message(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='messages')   #If a Room is deleted, all related Message objects are automatically deleted too.
     body = models.TextField()
+    file = models.FileField(upload_to='uploads/', blank=True, null=True)
     updated = models.DateTimeField(auto_now=True) #it takes the snapshot of everytime this table is updated
     created = models.DateField(auto_now_add=True) #it takes snapshot of time the first time the table was created(instance of this class was created)
     class Meta:

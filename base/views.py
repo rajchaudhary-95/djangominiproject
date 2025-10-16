@@ -7,14 +7,8 @@ from django.db.models import Q, Count          #Used for serach related operatio
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.forms import UserCreationForm
 from .models import Room,Topic,Message,User
-from .forms import RoomForm, UserForm, MyUserCreationForm     #importing after making Roomform in forms.py
+from .forms import RoomForm, UserForm, MyUserCreationForm, MessageForm     
 # Create your views here.
-
-# rooms = [
-#     {'id': 1, 'name':'lets learn python!'},
-#     {'id': 2, 'name':'Design with me'},
-#     {'id': 3, 'name':'Frontend dev'},
-# ]
 
 def loginPage(request):
     page = 'login'
@@ -59,40 +53,54 @@ def registerPage(request):
     return render(request, 'base/login_register.html', {'form' : form})
 
 def home(request):
-    q = request.GET.get('q') if request.GET.get('q')!=None else ''      #if request has q variable then it filters but if none exist with such name then all are displayed. All button doenst have q therefore everything is displayed 
+    q = request.GET.get('q') if request.GET.get('q') != None else ''
+
+    # Filter rooms by topic, name, or description
     rooms = Room.objects.filter(
-        Q(topic__name__icontains=q) |
+        Q(topics__name__icontains=q) |   # <-- updated for ManyToManyField
         Q(name__icontains=q) |
         Q(description__icontains=q)
     ).annotate(
         message_count=Count('messages', distinct=True),
         participant_count=Count('participants', distinct=True)
-    ).order_by('-message_count', '-participant_count', '-created')       #contains sees for eg if for searching python only py is added to sitename then it searches for rooms starting with py.(full python isnt needed to be typed) and icontains = case insensitive (contains)
-                # by using Q we put OR for searching either room name or room topic or room description
-    topics = Topic.objects.annotate(
-        room_count=Count('room')
-    ).order_by('-room_count')[:4]
+    ).order_by('-message_count', '-participant_count', '-created')
+
+    topics = Topic.objects.all()  
     room_count = rooms.count()
 
-    room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))
+    room_messages = Message.objects.filter(Q(room__topics__name__icontains=q))
 
-    context = {'rooms':rooms,'topics':topics, 'room_count':room_count,'room_messages':room_messages}
+    context = {
+        'rooms': rooms,
+        'topics': topics,
+        'room_count': room_count,
+        'room_messages': room_messages
+    }
     return render(request, 'base/home.html', context)
 
-def room(request,pk):
+def room(request, pk):
     room = Room.objects.get(id=pk)
     room_messages = room.messages.all()
     participants = room.participants.all()
-    if request.method =='POST':
-        message = Message.objects.create(
-            user = request.user,
-            room = room,
-            body = request.POST.get('body')
-        )
-        room.participants.add(request.user)
-        return redirect('room', pk=room.id)
-    context  = {'room':room,'room_messages' : room_messages,'participants':participants}
 
+    if request.method == 'POST':
+        form = MessageForm(request.POST, request.FILES)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.user = request.user
+            message.room = room
+            message.save()
+            room.participants.add(request.user)
+            return redirect('room', pk=room.id)
+    else:
+        form = MessageForm()
+
+    context = {
+        'room': room,
+        'room_messages': room_messages,
+        'participants': participants,
+        'form': form
+    }
     return render(request, 'base/room.html', context)
 
 
@@ -110,16 +118,18 @@ def createRoom(request):
     form = RoomForm()
     topics = Topic.objects.all()
     if request.method == 'POST':
-        topic_name = request.POST.get('topic')
-        topic, created = Topic.objects.get_or_create(name=topic_name)   
-        
-        
-        Room.objects.create(
-            host = request.user,
-            topic = topic,
-            name = request.POST.get('name'),
-            description = request.POST.get('description'),
+        topic_input = request.POST.get('topics', '')  # "Python, AI, Django"
+        topic_names = [t.strip() for t in topic_input.split(',') if t.strip()]
+
+        room = Room.objects.create(
+            host=request.user,
+            name=request.POST.get('name'),
+            description=request.POST.get('description'),
         )
+
+        for name in topic_names:
+            topic, created = Topic.objects.get_or_create(name=name)
+            room.topics.add(topic)
         return redirect('home')
     context = {'form': form,'topics':topics}
     return render(request, 'base/room_form.html', context)
