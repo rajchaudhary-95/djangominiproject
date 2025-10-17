@@ -68,7 +68,7 @@ def home(request):
     topics = Topic.objects.all()  
     room_count = rooms.count()
 
-    room_messages = Message.objects.filter(Q(room__topics__name__icontains=q))
+    room_messages = Message.objects.filter(Q(room__topics__name__icontains=q)).distinct()[:4]
 
     context = {
         'rooms': rooms,
@@ -78,6 +78,7 @@ def home(request):
     }
     return render(request, 'base/home.html', context)
 
+@login_required(login_url='login')
 def room(request, pk):
     room = Room.objects.get(id=pk)
     room_messages = room.messages.all()
