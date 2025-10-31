@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q, Count          #Used for serach related operations.
+from django.db.models import Q, Count , Sum         #Used for serach related operations.
 
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.forms import UserCreationForm
@@ -175,17 +175,19 @@ def updateRoom(request,pk):
 
 @login_required(login_url='/login')
 def deleteRoom(request, pk):
-    room = Room.objects.get(id=pk)
+    room = get_object_or_404(Room, id=pk)
 
     if request.user != room.host:
         return HttpResponse("You are not allowed here!")
-    
+
     if request.method == 'POST':
         room.delete()
-        # Get the previous page URL from the request
-        previous_page = request.META.get('HTTP_REFERER', 'home')
-        return redirect(previous_page)
+        # SUCCESS! Now go to a safe page.
+        # Do NOT use HTTP_REFERER here.
+        messages.success(request, 'Room deleted successfully!') # Optional: Add a success message
+        return redirect('home') # <-- CHANGED
     
+    # This context is for the GET request (the confirmation page)
     return render(request, 'base/delete.html', {'obj': room})
 
 
