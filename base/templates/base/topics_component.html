@@ -5,15 +5,14 @@
     <ul class="topics__list">
     <li>
     <a href="{% url 'home' %}" class="active">
-        All <span>{{ topics.count }}</span>
+        All <span>{{ room_count }}</span>
     </a>
     </li>
     {% for topic in topics %}
     <li>
         <a href="{% url 'home' %}?q={{ topic.name }}">
         {{ topic.name }}
-        <span>{{ topic.rooms.count }}</span>
-        </a>
+        <span>{{ topic.room_count }}</span>  </a>
     </li>
     {% endfor %}
     </ul>

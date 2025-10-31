@@ -107,7 +107,22 @@
                     {% endif %}
                   </div>
                   <div class="thread__details">
-                    {{ message.body|linebreaksbr }}
+                      {% if message.is_code_snippet %}
+                          <div class="code-snippet">
+                              <div class="code-header">
+                                  <span class="code-language">{{ message.language|upper }}</span>
+                                  <button class="copy-code-btn" onclick="copyCode(this)">
+                                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                          <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                      </svg>
+                                      Copy
+                                  </button>
+                              </div>
+                              <pre><code class="language-{{ message.language }}">{{ message.body }}</code></pre>
+                          </div>
+                      {% else %}
+                          {{ message.body|linebreaksbr }}
+                      {% endif %}
                   </div>
                 </div>
                 {% endfor %}
@@ -116,20 +131,52 @@
           </div>
           
           <!-- Message Input Form - SIMPLE AND CLEAN -->
-          <div class="room__message">
-            <form method="POST">
-              {% csrf_token %}
-              <div class="form__group">
-                <textarea 
-                  name="body" 
-                  placeholder="Write your message here..." 
-                  rows="3"
-                  style="width: 100%; padding: 1rem; border-radius: 0.5rem; background: var(--color-dark-light); color: var(--color-light); border: none; resize: vertical;"
-                ></textarea>
-              </div>
-              <button type="submit" class="btn btn--main" style="width: 100%; margin-top: 1rem;">Send Message</button>
-            </form>
-          </div>
+          <!-- Message Input Form - PROPERLY STYLED -->
+          <!-- Enhanced Message Input Form with Code Snippet Support -->
+<!-- Enhanced Message Input Form with Code Snippet Support -->
+<!-- Enhanced Message Input Form with Code Snippet Support -->
+<div class="room__message">
+    <form method="POST" id="messageForm">
+        {% csrf_token %}
+        
+        <!-- Code Snippet Toggle -->
+        <div class="code-snippet-controls" id="codeControls">
+            <div class="code-controls-inner">
+                <label class="code-toggle-label">
+                    <input type="checkbox" name="is_code_snippet" id="is_code_snippet" class="code-snippet-toggle">
+                    <strong>💻 Code Snippet</strong>
+                </label>
+                <select name="language" id="language" class="language-select">
+                    <option value="">Select Language</option>
+                    <option value="python">Python</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="html">HTML</option>
+                    <option value="css">CSS</option>
+                    <option value="java">Java</option>
+                    <option value="cpp">C++</option>
+                    <option value="sql">SQL</option>
+                    <option value="bash">Bash/Shell</option>
+                </select>
+                <small class="code-tip">
+                    💡 Tip: Use Shift+Enter for new line, Enter to send
+                </small>
+            </div>
+        </div>
+        
+        <!-- Message Textarea -->
+        <div class="form__group">
+            <textarea 
+                name="body" 
+                placeholder="Write your message here..." 
+                rows="2"
+                class="message-textarea"
+                id="messageTextarea"
+            ></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn--main send-button">Send Message</button>
+    </form>
+</div>
         </div>
         <!-- Room End -->
 

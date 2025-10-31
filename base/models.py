@@ -36,12 +36,16 @@ class Room(models.Model):
     
 class Message(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='messages')   #If a Room is deleted, all related Message objects are automatically deleted too.
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='messages')
     body = models.TextField()
     file = models.FileField(upload_to='uploads/', blank=True, null=True)
-    updated = models.DateTimeField(auto_now=True) #it takes the snapshot of everytime this table is updated
-    created = models.DateField(auto_now_add=True) #it takes snapshot of time the first time the table was created(instance of this class was created)
+    is_code_snippet = models.BooleanField(default=False)  # New field
+    language = models.CharField(max_length=50, blank=True, null=True)  # New field
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateField(auto_now_add=True)
+    
     class Meta:
         ordering = ['-updated', '-created']
+    
     def __str__(self):
         return self.body[0:50]

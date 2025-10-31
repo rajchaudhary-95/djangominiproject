@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -57,7 +57,7 @@ def home(request):
 
     # Filter rooms by topic, name, or description
     rooms = Room.objects.filter(
-        Q(topics__name__icontains=q) |   # <-- updated for ManyToManyField
+        Q(topics__name__icontains=q) |
         Q(name__icontains=q) |
         Q(description__icontains=q)
     ).annotate(
@@ -65,9 +65,13 @@ def home(request):
         participant_count=Count('participants', distinct=True)
     ).order_by('-message_count', '-participant_count', '-created')
 
-    topics = Topic.objects.all()  
-    room_count = rooms.count()
 
+    # Use 'rooms' as the reverse relationship name (from models.py)
+    # Use distinct=True to count each unique room only once per topic
+    topics = Topic.objects.annotate(room_count=Count('rooms', distinct=True)).all()
+    # Filter out topics with 0 rooms (optional, but maintains a cleaner list)
+    topics = topics.filter(room_count__gt=0)
+    room_count = rooms.count()
     room_messages = Message.objects.filter(Q(room__topics__name__icontains=q)).distinct()[:4]
 
     context = {
@@ -90,6 +94,21 @@ def room(request, pk):
             message = form.save(commit=False)
             message.user = request.user
             message.room = room
+            
+            # DON'T clean/modify the body for code snippets
+            body = form.cleaned_data['body']
+            if form.cleaned_data.get('is_code_snippet', False):
+                # Preserve exact formatting for code snippets
+                message.body = body
+            else:
+                # Only clean regular messages
+                cleaned_body = '\n'.join(line.strip() for line in body.splitlines())
+                message.body = cleaned_body
+            
+            # Handle code snippet
+            message.is_code_snippet = form.cleaned_data.get('is_code_snippet', False)
+            message.language = form.cleaned_data.get('language', '') if message.is_code_snippet else None
+            
             message.save()
             room.participants.add(request.user)
             return redirect('room', pk=room.id)
@@ -103,7 +122,6 @@ def room(request, pk):
         'form': form
     }
     return render(request, 'base/room.html', context)
-
 
 def userProfile(request, pk):
     user = User.objects.get(id=pk)
@@ -156,25 +174,33 @@ def updateRoom(request,pk):
     return render(request, 'base/room_form.html',context)
 
 @login_required(login_url='/login')
-def deleteRoom(request,pk):
+def deleteRoom(request, pk):
     room = Room.objects.get(id=pk)
 
     if request.user != room.host:
         return HttpResponse("You are not allowed here!")
+    
     if request.method == 'POST':
         room.delete()
-        return redirect('home')
-    return render(request,'base/delete.html',{'obj':room})
+        # Get the previous page URL from the request
+        previous_page = request.META.get('HTTP_REFERER', 'home')
+        return redirect(previous_page)
+    
+    return render(request, 'base/delete.html', {'obj': room})
+
 
 @login_required(login_url='/login')
-def deleteMessage(request,pk):
+def deleteMessage(request, pk):
     message = Message.objects.get(id=pk)
 
     if request.user != message.user:
         return HttpResponse("You are not allowed here!")
+    
     if request.method == 'POST':
+        room_id = message.room.id  # Get the room ID before deleting
         message.delete()
-        return redirect('home')
+        return redirect('room', pk=room_id)  # Redirect back to the room
+    
     return render(request,'base/delete.html',{'obj':message})
 
 

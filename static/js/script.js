@@ -69,25 +69,81 @@ if (photoInput) {
 const conversationThread = document.querySelector(".room__box");
 if (conversationThread) conversationThread.scrollTop = conversationThread.scrollHeight;
 
-// Simple message input handling
-const messageTextarea = document.querySelector('.room__message textarea');
-if (messageTextarea) {
-    // Auto-resize
-    messageTextarea.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 200) + 'px';
-    });
-    
-    // Enter to submit, Shift+Enter for new line
-    messageTextarea.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            this.form.submit();
-        }
-    });
-    
-    // Focus on load
-    setTimeout(() => {
-        messageTextarea.focus();
-    }, 100);
+// Code Snippet Functionality
+function initializeCodeSnippetFeatures() {
+    const codeSnippetToggle = document.getElementById('is_code_snippet');
+    const codeControls = document.getElementById('codeControls');
+    const messageTextarea = document.getElementById('messageTextarea');
+    const languageSelect = document.getElementById('language');
+
+    if (codeSnippetToggle && codeControls && messageTextarea) {
+        // Make code controls always visible
+        codeControls.style.display = 'block';
+
+        // Toggle code snippet mode
+        codeSnippetToggle.addEventListener('change', function() {
+            if (this.checked) {
+                // Code mode ON
+                codeControls.style.backgroundColor = 'var(--color-dark-light)';
+                codeControls.style.border = '2px solid var(--color-main)';
+                messageTextarea.placeholder = 'Paste your code here...';
+                messageTextarea.rows = 8;
+                messageTextarea.style.fontFamily = 'Monaco, "Courier New", monospace';
+                messageTextarea.style.fontSize = '13px';
+            } else {
+                // Code mode OFF
+                codeControls.style.backgroundColor = 'var(--color-dark-medium)';
+                codeControls.style.border = '1px solid var(--color-dark-light)';
+                messageTextarea.placeholder = 'Write your message here...';
+                messageTextarea.rows = 3;
+                messageTextarea.style.fontFamily = 'inherit';
+                messageTextarea.style.fontSize = '14px';
+            }
+        });
+
+        // Tab support for code indentation
+        messageTextarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab' && codeSnippetToggle.checked) {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                
+                // Insert 4 spaces
+                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                
+                // Move cursor
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+        });
+    }
 }
+
+// Copy code functionality
+function copyCode(button) {
+    const codeBlock = button.closest('.code-snippet').querySelector('code');
+    const textArea = document.createElement('textarea');
+    textArea.value = codeBlock.textContent;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    // Visual feedback
+    const originalText = button.innerHTML;
+    button.innerHTML = '✓ Copied!';
+    button.style.background = 'var(--color-success)';
+    button.style.borderColor = 'var(--color-success)';
+    button.style.color = 'var(--color-dark)';
+    
+    setTimeout(() => {
+        button.innerHTML = originalText;
+        button.style.background = 'transparent';
+        button.style.borderColor = 'var(--color-main)';
+        button.style.color = 'var(--color-main)';
+    }, 2000);
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCodeSnippetFeatures();
+});

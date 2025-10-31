@@ -22,17 +22,30 @@ class UserForm(ModelForm):
         fields = ['avatar','name','username','email','bio']
 
 class MessageForm(forms.ModelForm):
+    is_code_snippet = forms.BooleanField(
+        required=False, 
+        label='Code Snippet',
+        widget=forms.CheckboxInput(attrs={'class': 'code-snippet-toggle'})
+    )
+    language = forms.ChoiceField(
+        required=False,
+        choices=[
+            ('', 'Select Language'),
+            ('python', 'Python'),
+            ('javascript', 'JavaScript'),
+            ('html', 'HTML'),
+            ('css', 'CSS'),
+            ('java', 'Java'),
+            ('cpp', 'C++'),
+            ('sql', 'SQL'),
+            ('bash', 'Bash/Shell'),
+            ('json', 'JSON'),
+            ('xml', 'XML'),
+            ('markdown', 'Markdown'),
+        ],
+        widget=forms.Select(attrs={'class': 'language-select'})
+    )
+    
     class Meta:
         model = Message
-        fields = ['body']
-        widgets = {
-            'body': forms.Textarea(attrs={
-                'placeholder': 'Write your message here...',
-                'rows': 3,
-                'style': 'resize: vertical; min-height: 80px;'
-            }),
-        }
-    
-    def __init__(self, *args, **kwargs):
-        super(MessageForm, self).__init__(*args, **kwargs)
-        self.fields['body'].label = ""
+        fields = ['body', 'file', 'is_code_snippet', 'language']
