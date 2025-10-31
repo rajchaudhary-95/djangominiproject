@@ -1097,34 +1097,64 @@ a {
   margin-top: 0.5rem;
 }
 
+/* ==============================
+=>  Room Message Input (Simple selector)
+================================*/
+
+.room__conversation {
+  padding-bottom: 8rem;
+}
+
 .room__message {
-  padding: 2rem;
+  padding: 1.5rem;
   position: absolute;
-  z-index: 111;
+  z-index: 100;
   bottom: 0;
   left: 0;
   right: 0;
-  background: transparent;
+  background-color: var(--color-dark);
+  border-top: 1px solid var(--color-dark-light);
+}
+
+.room__message > form {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .room__message > form > input {
-  resize: none;
   background-color: var(--color-dark-light);
   color: var(--color-light);
   border: none;
   outline: none;
   border-radius: 0.7rem;
   height: 4.5rem;
-  width: 100%;
-  margin-top: -1rem;
+  flex: 1;
   padding: 1.2rem;
   font-size: 1.4rem;
   font-weight: 500;
-  position: relative;
+  font-family: inherit;
 }
 
 .room__message > form > input::placeholder {
   color: var(--color-light-gray);
+}
+
+.room__message > form > button[type="submit"] {
+  background-color: var(--color-main);
+  color: var(--color-light);
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0 2rem;
+  height: 4.5rem;
+  font-size: 1.4rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.room__message > form > button[type="submit"]:hover {
+  opacity: 0.9;
 }
 
 .participants__top span {
