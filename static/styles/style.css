@@ -1193,3 +1193,148 @@ a {
   color: var(--color-main);
   font-weight: 1.4rem;
 }
+
+/* Improved message formatting - Add to style.css */
+.thread__details {
+    font-size: 1.4rem;
+    margin-top: 0.5rem;
+    white-space: pre-wrap; /* This preserves line breaks */
+    word-wrap: break-word;
+    line-height: 1.6;
+    padding: 1rem 1.5rem;
+    background: var(--color-dark-medium);
+    border-radius: 0.8rem;
+    border-left: 4px solid var(--color-main);
+    max-width: 100%;
+    overflow-wrap: break-word;
+}
+
+/* Ensure the thread container has proper spacing */
+.thread {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.thread:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Improved message input area */
+.room__message {
+    padding: 1.5rem;
+    position: absolute;
+    z-index: 100;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--color-dark);
+    border-top: 1px solid var(--color-dark-light);
+}
+
+.room__message > form {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    max-width: 100%;
+}
+
+.room__message textarea {
+    flex: 1;
+    background-color: var(--color-dark-light);
+    color: var(--color-light);
+    border: none;
+    outline: none;
+    border-radius: 0.7rem;
+    padding: 1.2rem;
+    font-size: 1.4rem;
+    font-weight: 500;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 45px;
+    max-height: 120px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+}
+
+.room__message textarea::placeholder {
+    color: var(--color-light-gray);
+}
+
+.room__message textarea:focus {
+    border: 1px solid var(--color-main);
+}
+
+.room__message button[type="submit"] {
+    background-color: var(--color-main);
+    color: var(--color-dark);
+    border: none;
+    border-radius: 0.7rem;
+    padding: 0.8rem 1.2rem;
+    height: 45px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    white-space: nowrap;
+    min-width: 80px;
+}
+
+.room__message button[type="submit"]:hover {
+    background-color: var(--color-main-light);
+    transform: translateY(-1px);
+}
+
+/* Add these styles to your existing style.css */
+
+/* Improved message display */
+.thread__details {
+    font-size: 1.4rem;
+    margin-top: 0.5rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    line-height: 1.6;
+    padding: 1rem 1.5rem;
+    background: var(--color-dark-medium);
+    border-radius: 0.8rem;
+    border-left: 4px solid var(--color-main);
+}
+
+/* Message input styling */
+.room__message {
+    padding: 1.5rem;
+    background-color: var(--color-dark);
+    border-top: 1px solid var(--color-dark-light);
+}
+
+.room__message textarea {
+    width: 100%;
+    background-color: var(--color-dark-light);
+    color: var(--color-light);
+    border: none;
+    outline: none;
+    border-radius: 0.7rem;
+    padding: 1.2rem;
+    font-size: 1.4rem;
+    font-weight: 500;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.4;
+}
+
+.room__message textarea:focus {
+    border: 1px solid var(--color-main);
+}
+
+.room__message textarea::placeholder {
+    color: var(--color-light-gray);
+}
+
+.room__message .btn--main {
+    width: 100%;
+    padding: 1rem 2rem;
+    font-size: 1.4rem;
+    margin-top: 1rem;
+}

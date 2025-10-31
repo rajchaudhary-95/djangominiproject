@@ -42,8 +42,8 @@
 //   });
 // }
 
-// Menu
-
+// Menu functionality
+// Simple and clean JavaScript
 const dropdownMenu = document.querySelector(".dropdown-menu");
 const dropdownButton = document.querySelector(".dropdown-button");
 
@@ -56,16 +56,38 @@ if (dropdownButton) {
 // Upload Image
 const photoInput = document.querySelector("#avatar");
 const photoPreview = document.querySelector("#preview-avatar");
-if (photoInput)
+if (photoInput) {
   photoInput.onchange = () => {
     const [file] = photoInput.files;
     if (file) {
       photoPreview.src = URL.createObjectURL(file);
     }
   };
+}
 
 // Scroll to Bottom
 const conversationThread = document.querySelector(".room__box");
 if (conversationThread) conversationThread.scrollTop = conversationThread.scrollHeight;
 
-
+// Simple message input handling
+const messageTextarea = document.querySelector('.room__message textarea');
+if (messageTextarea) {
+    // Auto-resize
+    messageTextarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+    });
+    
+    // Enter to submit, Shift+Enter for new line
+    messageTextarea.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            this.form.submit();
+        }
+    });
+    
+    // Focus on load
+    setTimeout(() => {
+        messageTextarea.focus();
+    }, 100);
+}

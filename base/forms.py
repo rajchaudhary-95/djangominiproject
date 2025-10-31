@@ -24,4 +24,15 @@ class UserForm(ModelForm):
 class MessageForm(forms.ModelForm):
     class Meta:
         model = Message
-        fields = ['body', 'file']
+        fields = ['body']
+        widgets = {
+            'body': forms.Textarea(attrs={
+                'placeholder': 'Write your message here...',
+                'rows': 3,
+                'style': 'resize: vertical; min-height: 80px;'
+            }),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super(MessageForm, self).__init__(*args, **kwargs)
+        self.fields['body'].label = ""

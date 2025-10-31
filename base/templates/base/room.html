@@ -1,7 +1,6 @@
 {% extends 'main.html' %}
 
 {% block content %}   
-
     <main class="profile-page layout layout--2">
       <div class="container">
         <!-- Room Start -->
@@ -40,7 +39,7 @@
                     </g>
                     <g>
                       <path
-                        d="m17.889 10.146c-.128 0-.256-.049-.354-.146l-3.535-3.536c-.195-.195-.195-.512 0-.707s.512-.195.707 0l3.536 3.536c.195.195.195.512 0 .707-.098.098-.226.146-.354.146z"
+                        d="m17.889 10.146c-.128 0-.256-.049-.354-.146l-3.535-3.536c-.195-.195-.195-.512 0-.707s.512-.195.707 0l3.536 3.536c.195.195.195.512 0.707-.098.098-.226.146-.354.146z"
                       />
                     </g>
                   </g>
@@ -72,11 +71,6 @@
                   <span>@{{room.host.username}}</span>
                 </a>
               </div>
-              <!-- <div class="room__details">
-                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quasi, tenetur laudantium? Dicta repellendus
-                rerum consectetur, voluptatem repudiandae eum ea porro cupiditate provident nulla, deserunt, ab ipsum
-                corporis laboriosam deleniti molestias?
-              </div> -->
               <div class="room__topics">
                 {% for topic in room.topics.all %}
                   {{ topic.name }}{% if not forloop.last %}, {% endif %}
@@ -84,12 +78,10 @@
                   <span>No topics</span>
                 {% endfor %}
               </div>
-
-
             </div>
             <div class="room__conversation">
-              <div class="threads scroll room__conversation">
-              {% for message in room_messages %}
+              <div class="threads scroll">
+                {% for message in room_messages %}
                 <div class="thread">
                   <div class="thread__top">
                     <div class="thread__author">
@@ -115,25 +107,33 @@
                     {% endif %}
                   </div>
                   <div class="thread__details">
-                    {{message.body}}
+                    {{ message.body|linebreaksbr }}
                   </div>
                 </div>
-              {% endfor %}
-
+                {% endfor %}
               </div>
             </div>
           </div>
+          
+          <!-- Message Input Form - SIMPLE AND CLEAN -->
           <div class="room__message">
-              <form action="" method="POST">
-                  {% csrf_token %}
-                  <input type="text" name="body" placeholder="Write your message here..." />
-                  <button type="submit">Send</button>
-              </form>
+            <form method="POST">
+              {% csrf_token %}
+              <div class="form__group">
+                <textarea 
+                  name="body" 
+                  placeholder="Write your message here..." 
+                  rows="3"
+                  style="width: 100%; padding: 1rem; border-radius: 0.5rem; background: var(--color-dark-light); color: var(--color-light); border: none; resize: vertical;"
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn--main" style="width: 100%; margin-top: 1rem;">Send Message</button>
+            </form>
           </div>
         </div>
         <!-- Room End -->
 
-        <!--   Start -->
+        <!-- Participants Start -->
         <div class="participants">
           <h3 class="participants__top">Participants <span>{{participants.count}}</span></h3>
           <div class="participants__list scroll">
@@ -150,8 +150,7 @@
             {% endfor %}
           </div>
         </div>
-        <!--  End -->
+        <!-- Participants End -->
       </div>
     </main>
-    <script src="script.js"></script>
-  {% endblock content %}
+{% endblock content %}

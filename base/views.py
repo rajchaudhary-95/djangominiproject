@@ -85,7 +85,7 @@ def room(request, pk):
     participants = room.participants.all()
 
     if request.method == 'POST':
-        form = MessageForm(request.POST, request.FILES)
+        form = MessageForm(request.POST)
         if form.is_valid():
             message = form.save(commit=False)
             message.user = request.user
